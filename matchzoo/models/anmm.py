@@ -51,14 +51,11 @@ class ANMM(BaseModel):
         """
         # query is [batch_size, left_text_len]
         # doc is [batch_size, right_text_len, bin_num]
-        query, doc = self._make_inputs()
+        query, doc, d_one_tensors = self._make_inputs()
         #embedding = self._make_embedding_layer()
 
         #q_embed = embedding(query)
-        q_embed = tensorflow.keras.layers.Dropout(
-            rate=self._params['dropout_rate'])(query)
         
-        q_text_len = self._params['input_shapes'][0][0]
 
         d_bin = tensorflow.keras.layers.Dropout(
             rate=self._params['dropout_rate'])(doc)
@@ -72,18 +69,27 @@ class ANMM(BaseModel):
         d_bin = tensorflow.keras.layers.Dense(
             self._params['hidden_sizes'][self._params['num_layers'] - 1])(
             d_bin)
+        
+        score0 = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, d_one_tensors])
        
+        q_embed0 = tensorflow.keras.layers.Dropout(
+            rate=self._params['dropout_rate'])(query)
+        
+        q_embed1 = tensorflow.keras.layers.Dropout(
+            rate=self._params['dropout_rate'])(score0)
         
         q_attention = tensorflow.keras.layers.Dense(
-            self._params['hidden_sizes'][self._params['num_layers'] - 1], kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
+            1, kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
+        
+        q_text_len = self._params['input_shapes'][0][0]
         
         q_attention = tensorflow.keras.layers.Lambda(
             lambda x: softmax(x, axis=1),
-            output_shape=(30,)
+            output_shape=(q_text_len,)
         )(q_attention)
         
         #d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
         #q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
-        score = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
+        score = tensorflow.keras.layers.Dot(axes=[1, 1])([q_attention, q_embed1])
         x_out = self._make_output_layer()(score)
         self._backend = keras.Model(inputs=[query, doc], outputs=x_out)
