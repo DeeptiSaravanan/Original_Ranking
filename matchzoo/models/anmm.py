@@ -55,8 +55,8 @@ class ANMM(BaseModel):
         #embedding = self._make_embedding_layer()
 
         #q_embed = embedding(query)
-        q_embed = tensorflow.keras.layers.Dropout(
-            rate=self._params['dropout_rate'])(query)
+        #q_embed = tensorflow.keras.layers.Dropout(
+        #    rate=self._params['dropout_rate'])(query)
         
         q_text_len = self._params['input_shapes'][0][0]
 
@@ -73,6 +73,19 @@ class ANMM(BaseModel):
             self._params['hidden_sizes'][self._params['num_layers'] - 1])(
             d_bin)
         
+        q_attention = tensorflow.keras.layers.Dropout(
+            rate=self._params['dropout_rate'])(query)
+        
+        for layer_id in range(self._params['num_layers'] - 1):
+            q_attention = tensorflow.keras.layers.Dense(
+                self._params['hidden_sizes'][layer_id],
+                kernel_initializer=RandomUniform())(q_attention)
+            q_attention = tensorflow.keras.layers.Activation('tanh')(q_attention)
+        
+        q_attention = tensorflow.keras.layers.Dense(
+            self._params['hidden_sizes'][self._params['num_layers'] - 1])(
+            q_attention)
+        '''
         q_attention = tensorflow.keras.layers.Dense(
             self._params['hidden_sizes'][self._params['num_layers'] - 1], kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
         
@@ -80,7 +93,7 @@ class ANMM(BaseModel):
             lambda x: softmax(x, axis=1),
             output_shape=(q_text_len,)
         )(q_attention)
-        
+        '''
         #d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
         #q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
         score = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
