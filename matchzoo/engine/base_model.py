@@ -502,7 +502,7 @@ class BaseModel(abc.ABC):
         )
         input_right = tensorflow.keras.layers.Input(
             name='text_right',
-            shape=(1,)
+            shape=self._params['input_shapes'][1]
         )
         return [input_left, input_right]
 
