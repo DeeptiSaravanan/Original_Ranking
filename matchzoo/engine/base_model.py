@@ -6,8 +6,9 @@ from pathlib import Path
 
 import dill
 import numpy as np
+import tensorflow
 import keras
-import keras.backend as K
+import tensorflow.keras.backend as K
 import pandas as pd
 
 import matchzoo
@@ -432,7 +433,7 @@ class BaseModel(abc.ABC):
 
     def get_embedding_layer(
         self, name: str = 'embedding'
-    ) -> keras.layers.Layer:
+    ) -> tensorflow.keras.layers.Layer:
         """
         Get the embedding layer.
 
@@ -495,23 +496,23 @@ class BaseModel(abc.ABC):
                 print(f"Parameter \"{name}\" set to {default_val}.")
 
     def _make_inputs(self) -> list:
-        input_left = keras.layers.Input(
+        input_left = tensorflow.keras.layers.Input(
             name='text_left',
             shape=self._params['input_shapes'][0]
         )
-        input_right = keras.layers.Input(
+        input_right = tensorflow.keras.layers.Input(
             name='text_right',
             shape=self._params['input_shapes'][1]
         )
         return [input_left, input_right]
 
-    def _make_output_layer(self) -> keras.layers.Layer:
+    def _make_output_layer(self) -> tensorflow.keras.layers.Layer:
         """:return: a correctly shaped keras dense layer for model output."""
         task = self._params['task']
         if isinstance(task, tasks.Classification):
-            return keras.layers.Dense(task.num_classes, activation='softmax')
+            return tensorflow.keras.layers.Dense(task.num_classes, activation='softmax')
         elif isinstance(task, tasks.Ranking):
-            return keras.layers.Dense(1, activation='linear')
+            return tensorflow.keras.layers.Dense(1, activation='linear')
         else:
             raise ValueError(f"{task} is not a valid task type."
                              f"Must be in `Ranking` and `Classification`.")
@@ -520,8 +521,8 @@ class BaseModel(abc.ABC):
         self,
         name: str = 'embedding',
         **kwargs
-    ) -> keras.layers.Layer:
-        return keras.layers.Embedding(
+    ) -> tensorflow.keras.layers.Layer:
+        return tensorflow.keras.layers.Embedding(
             self._params['embedding_input_dim'],
             self._params['embedding_output_dim'],
             trainable=self._params['embedding_trainable'],
@@ -529,7 +530,7 @@ class BaseModel(abc.ABC):
             **kwargs
         )
 
-    def _make_multi_layer_perceptron_layer(self) -> keras.layers.Layer:
+    def _make_multi_layer_perceptron_layer(self) -> tensorflow.keras.layers.Layer:
         # TODO: do not create new layers for a second call
         if not self._params['with_multi_layer_perceptron']:
             raise AttributeError(
@@ -538,9 +539,9 @@ class BaseModel(abc.ABC):
         def _wrapper(x):
             activation = self._params['mlp_activation_func']
             for _ in range(self._params['mlp_num_layers']):
-                x = keras.layers.Dense(self._params['mlp_num_units'],
+                x = tensorflow.keras.layers.Dense(self._params['mlp_num_units'],
                                        activation=activation)(x)
-            return keras.layers.Dense(self._params['mlp_num_fan_out'],
+            return tensorflow.keras.layers.Dense(self._params['mlp_num_fan_out'],
                                       activation=activation)(x)
 
         return _wrapper
