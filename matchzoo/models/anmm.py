@@ -51,9 +51,12 @@ class ANMM(BaseModel):
         # query is [batch_size, left_text_len]
         # doc is [batch_size, right_text_len, bin_num]
         query, doc = self._make_inputs()
-        embedding = self._make_embedding_layer()
+        #embedding = self._make_embedding_layer()
 
-        q_embed = embedding(query)
+        #q_embed = embedding(query)
+        q_embed = tensorflow.keras.layers.Dropout(
+            rate=self._params['dropout_rate'])(query)
+        
         q_attention = keras.layers.Dense(
             1, kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
         q_text_len = self._params['input_shapes'][0][0]
