@@ -79,7 +79,7 @@ class ANMM(BaseModel):
             rate=self._params['dropout_rate'])(score0)
         
         q_attention = tensorflow.keras.layers.Dense(
-            1, kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
+            1, kernel_initializer=RandomUniform(), use_bias=False)(q_embed0)
         
         q_text_len = self._params['input_shapes'][0][0]
         
