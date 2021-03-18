@@ -82,7 +82,7 @@ class ANMM(BaseModel):
             output_shape=(30,)
         )(q_attention)
         
-        d_bin = tensorflow.keras.layers.Reshape((1,))(d_bin)
+        #d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
         #q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
         score = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
         x_out = self._make_output_layer()(score)
