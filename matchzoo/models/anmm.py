@@ -1,6 +1,7 @@
 """An implementation of aNMM Model."""
 
 import keras
+import tensorflow
 from keras.activations import softmax
 from keras.initializers import RandomUniform
 
@@ -57,26 +58,26 @@ class ANMM(BaseModel):
         q_embed = tensorflow.keras.layers.Dropout(
             rate=self._params['dropout_rate'])(query)
         
-        q_attention = keras.layers.Dense(
+        q_attention = tensorflow.keras.layers.Dense(
             1, kernel_initializer=RandomUniform(), use_bias=False)(q_embed)
         q_text_len = self._params['input_shapes'][0][0]
 
-        q_attention = keras.layers.Lambda(
+        q_attention = tensorflow.keras.layers.Lambda(
             lambda x: softmax(x, axis=1),
             output_shape=(q_text_len,)
         )(q_attention)
-        d_bin = keras.layers.Dropout(
+        d_bin = tensorflow.keras.layers.Dropout(
             rate=self._params['dropout_rate'])(doc)
         for layer_id in range(self._params['num_layers'] - 1):
-            d_bin = keras.layers.Dense(
+            d_bin = tensorflow.keras.layers.Dense(
                 self._params['hidden_sizes'][layer_id],
                 kernel_initializer=RandomUniform())(d_bin)
-            d_bin = keras.layers.Activation('tanh')(d_bin)
-        d_bin = keras.layers.Dense(
+            d_bin = tensorflow.keras.layers.Activation('tanh')(d_bin)
+        d_bin = tensorflow.keras.layers.Dense(
             self._params['hidden_sizes'][self._params['num_layers'] - 1])(
             d_bin)
-        d_bin = keras.layers.Reshape((q_text_len,))(d_bin)
-        q_attention = keras.layers.Reshape((q_text_len,))(q_attention)
-        score = keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
+        d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
+        q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
+        score = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
         x_out = self._make_output_layer()(score)
         self._backend = keras.Model(inputs=[query, doc], outputs=x_out)
