@@ -76,8 +76,8 @@ class ANMM(BaseModel):
         d_bin = tensorflow.keras.layers.Dense(
             self._params['hidden_sizes'][self._params['num_layers'] - 1])(
             d_bin)
-        d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
-        q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
+        #d_bin = tensorflow.keras.layers.Reshape((q_text_len,))(d_bin)
+        #q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
         score = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, q_attention])
         x_out = self._make_output_layer()(score)
         self._backend = keras.Model(inputs=[query, doc], outputs=x_out)
