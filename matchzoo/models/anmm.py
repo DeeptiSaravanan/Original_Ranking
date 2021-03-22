@@ -71,7 +71,7 @@ class ANMM(BaseModel):
             d_bin)
         
         score0 = tensorflow.keras.layers.Dot(axes=[1, 1])([d_bin, d_one_tensors])
-       '''
+        '''
         q_embed0 = tensorflow.keras.layers.Dropout(
             rate=self._params['dropout_rate'])(query)
         
