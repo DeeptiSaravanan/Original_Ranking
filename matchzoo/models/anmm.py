@@ -122,4 +122,4 @@ class ANMM(BaseModel):
         score = tensorflow.keras.layers.Dot(axes=[1, 1])([q_attention, q_one_tensors])
         x_out = self._make_output_layer()(score)
         
-        self._backend = tensorflow.keras.Model(inputs=[query, doc, freq_vec, d_one_tensors, q_one_tensors], outputs=x_out)
+        self._backend = tensorflow.keras.Model(inputs=[query, doc, d_one_tensors, q_one_tensors], outputs=x_out)
