@@ -513,7 +513,11 @@ class BaseModel(abc.ABC):
             shape=self._params['input_shapes'][1]
         )
         
-        return [input_left, input_right, dot_right]
+        dot_left = tensorflow.keras.layers.Input(
+            name='dot_left',
+            shape=(1,)
+        
+        return [input_left, input_right, dot_right, dot_left]
 
     def _make_output_layer(self) -> tensorflow.keras.layers.Layer:
         """:return: a correctly shaped keras dense layer for model output."""
