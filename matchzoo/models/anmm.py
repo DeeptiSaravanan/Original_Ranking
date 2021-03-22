@@ -92,4 +92,4 @@ class ANMM(BaseModel):
         #q_attention = tensorflow.keras.layers.Reshape((q_text_len,))(q_attention)
         score = tensorflow.keras.layers.Dot(axes=[1, 1])([q_attention, q_embed1])
         x_out = self._make_output_layer()(score)
-        self._backend = keras.Model(inputs=[query, doc], outputs=x_out)
+        self._backend = keras.Model(inputs=[query, doc, d_one_tensors], outputs=x_out)
